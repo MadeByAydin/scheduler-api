@@ -154,7 +154,6 @@ app.get('/api/users', function(req, res){
 });
 
 app.get('/api/users/:studentID', function(req, res){
-    console.log("GET THIS STUDENT");
     User.find({"sid":req.params.studentID}, function(err, data){
         if(err){ 
             res.status(400).send(err);
@@ -167,9 +166,6 @@ app.get('/api/users/:studentID', function(req, res){
 
 
 app.post('/api/users',function(req,res) {
-    console.log("POST THIS STUDENT");
-
-
     var myData = new User(req.body);
     myData.save()
         .then(item => {
