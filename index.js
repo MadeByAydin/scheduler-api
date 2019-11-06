@@ -142,6 +142,18 @@ app.delete('/api/delete-plan/:planID', function(req, res){
     });
 });
 
+app.get('/api/users/classes/:studentID', function(req, res){
+    User.find({"sid":req.params.studentID}, function(err, data){
+        if(err){
+            res.status(400).send(err);
+        }
+
+        else{
+            res.status(200).send(data[0]["classes"]);
+        }
+    });
+});
+
 app.get('/api/users', function(req, res){
     User.find({}, function(err, data){
         if(err){
