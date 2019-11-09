@@ -7,6 +7,7 @@ var mongo = require('mongoose');
 var Plan = require('./model/Plan.js');
 var User =require('./model/User.js');
 var serviceURL = 'https://planner.cis.udel.edu:3002';
+var jwt = require('jsonwebtoken');
 const port = 3002;
 
 /*
@@ -36,15 +37,17 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.post('/api/update-plan/:planID', function(req, res){
-    Plan.save({"planID":req.params.planID}, function(err, data){
-        if(err){
-            res.status(400).send(err);
-        }
-        else{
-            res.status(200).send({data: "The plan was deleted"});
-        }
-    });
+app.all('*',function(req,res,next){
+    if(req.query.token){
+        try {
+            jwt.verify(req.query.token, 'your-256-bit-secret' /*'universityofdelaware**1776**cisc'*/);
+            next();
+          } catch(err) {
+            res.status(401).send();
+          }
+    }else{
+        res.status(401).send(); // 401 Not Authorized
+    }
 });
 
 app.get('/api/plans/:planID', function(req, res){
@@ -130,52 +133,44 @@ app.get('/api/concentration-names', function(req, res){
     });
 });
 
-app.delete('/api/delete-plan/:planID', function(req, res){
-    Plan.deleteOne({"planID":req.params.planID}, function(err, data){
-        if(err){
-            res.status(400).send(err);
-        }
-
-        else{
-            res.status(200).send({data: "The plan was deleted"});
-        }
-    });
-});
-
 app.get('/api/users/classes/:studentID', function(req, res){
-    User.find({"sid":req.params.studentID}, function(err, data){
-        if(err){
-            res.status(400).send(err);
-        }
+    let token = jwt.decode(req.query.token);
+    let tokenSID = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:user"]["_text"];
 
-        else{
-            res.status(200).send(data[0]["classes"]);
-        }
-    });
-});
+    if(tokenSID != req.params.studentID){
+        res.status(400).send();
+    }
+    else{
+        User.find({"uid":req.params.studentID}, function(err, data){
+            if(err){
+                res.status(400).send(err);
+            }
 
-app.get('/api/users', function(req, res){
-    User.find({}, function(err, data){
-        if(err){
-            res.status(400).send(err);
-        }
-        else{       
-            res.status(200).send(data);
-        }
-    });
+            else{
+                res.status(200).send(data[0]["classes"]);
+            }
+        });
+    }
 });
 
 app.get('/api/users/:studentID', function(req, res){
-    User.find({"sid":req.params.studentID}, function(err, data){
-        if(err){ 
-            res.status(400).send(err);
-        }
-        else{       
-            res.status(200).send(data);
-        }
-    });
-});
+    let token = jwt.decode(req.query.token);
+    let tokenSID = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:user"]["_text"];
 
+    if(tokenSID != req.params.studentID){
+        res.status(401).send();
+    }
+    else{
+        User.find({"uid":req.params.studentID}, function(err, data){
+            if(err){ 
+                res.status(400).send(err);
+            }
+            else{       
+                res.status(200).send(data);
+            }
+        });
+    }
+});
 
 app.post('/api/users',function(req,res) {
     var myData = new User(req.body);
@@ -197,18 +192,6 @@ app.post('/api/users',function(req,res) {
     //             }
     // });
 });
-
-
-//   app.post('/api/update-plan/:planID', function(req, res){
-//     Plan.save({"planID":req.params.planID}, function(err, data){
-//         if(err){
-//             res.status(400).send(err);
-//         }
-//         else{
-//             res.status(200).send({data: "The plan was deleted"});
-//         }
-//     });
-// });
 
 app.get('/api/delete-user/:studentID', function(req, res){
     User.deleteOne({"sid":req.params.studentID}, function(err, data){

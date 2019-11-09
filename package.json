@@ -10,6 +10,7 @@
   "license": "MIT License",
   "dependencies": {
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.7.5"
   }
 }
