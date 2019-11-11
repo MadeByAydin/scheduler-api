@@ -181,28 +181,6 @@ app.post('/api/users',function(req,res) {
         .catch(err => {
         res.status(400).send("unable to save to database");
     });
-
-
-    // User.save({"first_name":"jake"}, function(err, data){
-    //             if(err){
-    //                 res.status(400).send(err);
-    //             }
-    //             else{
-    //                 res.status(200).send({data: "The plan was deleted"});
-    //             }
-    // });
-});
-
-app.get('/api/delete-user/:studentID', function(req, res){
-    User.deleteOne({"sid":req.params.studentID}, function(err, data){
-        if(err){
-            res.status(400).send(err);
-        }
-
-        else{
-            res.status(200).send({data: "The user was deleted"});
-        }
-    });
 });
 
 app.listen(port, () => console.log(`Scheduler API open on port ${port}!`))
