@@ -4,7 +4,7 @@ var Schema = mongo.Schema;
 
 var usersSchema = new Schema({
     objectId: mongo.Schema.Types.ObjectId,
-    sid:  Number,
+    uid: String,
     first_name: String,
     last_name: String,
     classes : Array,

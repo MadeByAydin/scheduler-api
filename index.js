@@ -172,6 +172,45 @@ app.get('/api/users/:studentID', function(req, res){
     }
 });
 
+app.get('/api/users/register/:uid', function(req, res){
+    let token = jwt.decode(req.query.token);
+    let tokenSID = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:user"]["_text"];
+    let firstName = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:firstname"]["_text"];
+    let lastName = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:lastname"]["_text"];
+
+    if(tokenSID != req.params.uid){
+        res.status(401).send();
+    }
+    else{
+        User.countDocuments({"uid":req.params.uid}, function(err, count){
+            if(err){ 
+                res.status(400).send(err);
+            }
+            else{ 
+                if(!count){  
+                    var newUser = new User({
+                        "uid":  tokenSID,
+                        "first_name": firstName,
+                        "last_name": lastName,
+                        "classes" : [],
+                        "credits" : []
+                    });
+                    newUser.save()
+                        .then(item => {
+                        res.status(200).send();
+                    })
+                        .catch(err => {
+                        res.status(400).send();
+                    });   
+                }
+                else{
+                    res.status(412).send();
+                }
+            }
+        });
+    }
+});
+
 app.post('/api/users',function(req,res) {
     var myData = new User(req.body);
     myData.save()
