@@ -32,15 +32,22 @@ var db = mongo.connect("mongodb+srv://muhammet:test123@cluster0-dg6n3.mongodb.ne
 app.use(function(req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization, Access-Control-Allow-Credentials"
+      );
     res.setHeader('Access-Control-Allow-Credentials', true);
+
+    if (req.method === "OPTIONS") {
+        return res.status(200).end();
+      }
     next();
 });
 
 app.all('*',function(req,res,next){
-    if(req.query.token){
+    if(req.get("Authorization")){
         try {
-            jwt.verify(req.query.token, 'your-256-bit-secret' /*'universityofdelaware**1776**cisc'*/);
+            jwt.verify(req.get("Authorization"), 'your-256-bit-secret' /*'universityofdelaware**1776**cisc'*/);
             next();
           } catch(err) {
             res.status(401).send();
@@ -134,7 +141,7 @@ app.get('/api/concentration-names', function(req, res){
 });
 
 app.get('/api/users/classes/:studentID', function(req, res){
-    let token = jwt.decode(req.query.token);
+    let token = jwt.decode(req.get("Authorization"));
     let tokenSID = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:user"]["_text"];
 
     if(tokenSID != req.params.studentID){
@@ -154,7 +161,7 @@ app.get('/api/users/classes/:studentID', function(req, res){
 });
 
 app.get('/api/users/:studentID', function(req, res){
-    let token = jwt.decode(req.query.token);
+    let token = jwt.decode(req.get("Authorization"));
     let tokenSID = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:user"]["_text"];
 
     if(tokenSID != req.params.studentID){
@@ -173,7 +180,7 @@ app.get('/api/users/:studentID', function(req, res){
 });
 
 app.get('/api/users/register/:uid', function(req, res){
-    let token = jwt.decode(req.query.token);
+    let token = jwt.decode(req.get("Authorization"));
     let tokenSID = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:user"]["_text"];
     let firstName = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:firstname"]["_text"];
     let lastName = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:lastname"]["_text"];
