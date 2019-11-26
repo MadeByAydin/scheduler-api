@@ -7,8 +7,7 @@ var usersSchema = new Schema({
     uid: String,
     first_name: String,
     last_name: String,
-    classes : Array,
-    credits : Array
+    classes : Array
   });
 
 module.exports = mongo.model('users', usersSchema);

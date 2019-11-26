@@ -160,6 +160,33 @@ app.get('/api/users/classes/:studentID', function(req, res){
     }
 });
 
+app.get('/api/users/classes/class-names/:studentID', function(req, res){
+    let token = jwt.decode(req.get("Authorization"));
+    let tokenSID = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:user"]["_text"];
+
+    if(tokenSID != req.params.studentID){
+        res.status(400).send();
+    }
+    else{
+        User.find({"uid":req.params.studentID}, function(err, data){
+            if(err){
+                res.status(400).send(err);
+            }
+
+            else{
+                let classes = data[0]["classes"];
+                classNames = [];
+
+                for(let i in classes){
+                    classNames.push(classes[i].name);
+                }
+
+                res.status(200).send(classNames);
+            }
+        });
+    }
+});
+
 app.get('/api/users/:studentID', function(req, res){
     let token = jwt.decode(req.get("Authorization"));
     let tokenSID = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:user"]["_text"];
@@ -199,8 +226,7 @@ app.get('/api/users/register/:uid', function(req, res){
                         "uid":  tokenSID,
                         "first_name": firstName,
                         "last_name": lastName,
-                        "classes" : [],
-                        "credits" : []
+                        "classes" : []
                     });
                     newUser.save()
                         .then(item => {
@@ -228,6 +254,26 @@ app.post('/api/users',function(req,res) {
         res.status(400).send("unable to save to database");
     });
 });
+
+app.post('/api/users/update-classes/:uid',function(req,res) {
+    let token = jwt.decode(req.get("Authorization"));
+    let tokenSID = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:user"]["_text"];
+
+    if(tokenSID != req.params.uid){
+        res.status(401).send();
+    }
+    else{
+        User.updateOne({ uid: req.params.uid}, {$set: { "classes": req.body}}, function (err, data) {
+            if(err){ 
+                res.status(400).send(err);
+            }
+            else{       
+                res.status(200).send();
+            }
+        }) 
+    }
+});
+ 
 
 app.listen(port, () => console.log(`Scheduler API open on port ${port}!`))
 
