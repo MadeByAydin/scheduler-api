@@ -44,18 +44,18 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.all('*',function(req,res,next){
-    if(req.get("Authorization")){
-        try {
-            jwt.verify(req.get("Authorization"), 'your-256-bit-secret' /*'universityofdelaware**1776**cisc'*/);
-            next();
-          } catch(err) {
-            res.status(401).send();
-          }
-    }else{
-        res.status(401).send(); // 401 Not Authorized
-    }
-});
+// app.all('*',function(req,res,next){
+//     if(req.get("Authorization")){
+//         try {
+//             jwt.verify(req.get("Authorization"), 'your-256-bit-secret' /*'universityofdelaware**1776**cisc'*/);
+//             next();
+//           } catch(err) {
+//             res.status(401).send();
+//           }
+//     }else{
+//         res.status(401).send(); // 401 Not Authorized
+//     }
+// });
 
 app.get('/api/plans/:planID', function(req, res){
     Plan.find({"planID":req.params.planID}, function(err, data){
@@ -161,13 +161,13 @@ app.get('/api/users/classes/:studentID', function(req, res){
 });
 
 app.get('/api/users/classes/class-names/:studentID', function(req, res){
-    let token = jwt.decode(req.get("Authorization"));
-    let tokenSID = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:user"]["_text"];
+   // let token = jwt.decode(req.get("Authorization"));
+    //let tokenSID = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:user"]["_text"];
 
-    if(tokenSID != req.params.studentID){
-        res.status(400).send();
-    }
-    else{
+    // if(tokenSID != req.params.studentID){
+    //     res.status(400).send();
+    // }
+    // else{
         User.find({"uid":req.params.studentID}, function(err, data){
             if(err){
                 res.status(400).send(err);
@@ -176,15 +176,29 @@ app.get('/api/users/classes/class-names/:studentID', function(req, res){
             else{
                 let classes = data[0]["classes"];
                 classNames = [];
+                var numBreadths = 0;
+                var numConcElective = 0;
+                var numTechElective = 0;
 
                 for(let i in classes){
-                    classNames.push(classes[i].name);
+                    if(classes[i].classification == "Requirement"){
+                        classNames.push(classes[i].name);
+                    }
+                    else if(classes[i].classification == "University Breadth"){
+                        classNames.push(classes[i].classification + " " + (++numBreadths).toString());
+                    }
+                    else if(classes[i].classification == "Concentration Elective"){
+                        classNames.push(classes[i].classification + " " + (++numConcElective).toString());
+                    }
+                    else if(classes[i].classification == "Technical Elective"){
+                        classNames.push(classes[i].classification + " " + (++numTechElective).toString());
+                    }
                 }
 
                 res.status(200).send(classNames);
             }
         });
-    }
+   // }
 });
 
 app.get('/api/users/:studentID', function(req, res){
