@@ -13,7 +13,7 @@ const port = 3002;
 /*
     Connecting to the mongodb cluster, please dont hack me.
 */
-var db = mongo.connect("mongodb+srv://muhammet:test123@cluster0-dg6n3.mongodb.net/Degree_Plans?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true}, function(error, response){
+var db = mongo.connect("mongodb://uplanner:1xDD!$4@127.0.0.1:27017/planner?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true}, function(error, response){
     if(error){
         console.log(error);
     }
