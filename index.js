@@ -13,7 +13,7 @@ const port = 3002;
 /*
     Connecting to the mongodb cluster, please dont hack me.
 */
-var db = mongo.connect("mongodb+srv://muhammet:test123@cluster0-dg6n3.mongodb.net/Degree_Plans?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true}, function(error, response){
+var db = mongo.connect("mongodb://uplanner:1xDD!$4@127.0.0.1:27017/planner?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true}, function(error, response){
     if(error){
         console.log(error);
     }
@@ -288,6 +288,7 @@ app.post('/api/users/update-classes/:uid',function(req,res) {
     }
 });
  
+<<<<<<< HEAD
 https.createServer({
         key: fs.readFileSync('/var/secret/etc/ssl/forms-combined.cis.udel.edu.key'),
         cert: fs.readFileSync('/var/secret/etc/ssl/forms-combined.cis.udel.edu.pem')
@@ -295,3 +296,15 @@ https.createServer({
     .listen(port, function () {
     console.log('API listening at: ' + serviceURL);
 });
+=======
+
+app.listen(port, () => console.log(`Scheduler API open on port ${port}!`))
+
+// https.createServer({
+//         key: fs.readFileSync('/var/secret/etc/ssl/forms-combined.cis.udel.edu.key'),
+//         cert: fs.readFileSync('/var/secret/etc/ssl/forms-combined.cis.udel.edu.pem')
+//     }, app)
+//     .listen(port, function () {
+//     console.log('API listening at: ' + serviceURL);
+// });
+>>>>>>> 57494187b2568ae176e9b7eea5799ccd63de1acd
