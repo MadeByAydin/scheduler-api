@@ -44,18 +44,18 @@ app.use(function(req, res, next) {
     next();
 });
 
-// app.all('*',function(req,res,next){
-//     if(req.get("Authorization")){
-//         try {
-//             jwt.verify(req.get("Authorization"), 'your-256-bit-secret' /*'universityofdelaware**1776**cisc'*/);
-//             next();
-//           } catch(err) {
-//             res.status(401).send();
-//           }
-//     }else{
-//         res.status(401).send(); // 401 Not Authorized
-//     }
-// });
+app.all('*',function(req,res,next){
+    if(req.get("Authorization")){
+        try {
+            jwt.verify(req.get("Authorization"), 'universityofdelaware**1776**cisc');
+            next();
+          } catch(err) {
+            res.status(401).send();
+          }
+    }else{
+        res.status(401).send(); // 401 Not Authorized
+    }
+});
 
 app.get('/api/plans/:planID', function(req, res){
     Plan.find({"planID":req.params.planID}, function(err, data){
@@ -161,13 +161,13 @@ app.get('/api/users/classes/:studentID', function(req, res){
 });
 
 app.get('/api/users/classes/class-names/:studentID', function(req, res){
-   // let token = jwt.decode(req.get("Authorization"));
-    //let tokenSID = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:user"]["_text"];
+    let token = jwt.decode(req.get("Authorization"));
+    let tokenSID = token["cas:serviceResponse"]["cas:authenticationSuccess"]["cas:user"]["_text"];
 
-    // if(tokenSID != req.params.studentID){
-    //     res.status(400).send();
-    // }
-    // else{
+     if(tokenSID != req.params.studentID){
+         res.status(400).send();
+     }
+     else{
         User.find({"uid":req.params.studentID}, function(err, data){
             if(err){
                 res.status(400).send(err);
@@ -198,7 +198,7 @@ app.get('/api/users/classes/class-names/:studentID', function(req, res){
                 res.status(200).send(classNames);
             }
         });
-   // }
+    }
 });
 
 app.get('/api/users/:studentID', function(req, res){
@@ -288,13 +288,10 @@ app.post('/api/users/update-classes/:uid',function(req,res) {
     }
 });
  
-
-app.listen(port, () => console.log(`Scheduler API open on port ${port}!`))
-
-// https.createServer({
-//         key: fs.readFileSync('/var/secret/etc/ssl/forms-combined.cis.udel.edu.key'),
-//         cert: fs.readFileSync('/var/secret/etc/ssl/forms-combined.cis.udel.edu.pem')
-//     }, app)
-//     .listen(port, function () {
-//     console.log('API listening at: ' + serviceURL);
-// });
+https.createServer({
+        key: fs.readFileSync('/var/secret/etc/ssl/forms-combined.cis.udel.edu.key'),
+        cert: fs.readFileSync('/var/secret/etc/ssl/forms-combined.cis.udel.edu.pem')
+    }, app)
+    .listen(port, function () {
+    console.log('API listening at: ' + serviceURL);
+});
